@@ -65,7 +65,8 @@ function App() {
         setAmount(value)
         break
       
-      default: break
+      default:
+        break
     }
   }
 
@@ -118,7 +119,7 @@ function App() {
 
   }
 
-  const buttonDisable = cardNumber && date && cvv & amount
+  const buttonDisable = cardNumber && date && cvv && amount
   return (
     <Box
       component="form"

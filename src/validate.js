@@ -6,7 +6,7 @@ export function formValidate(obj) {
     cvvError: obj.cvv.length === 3,
     amountError: obj.amount > 0
   }
-  
+  console.log(errors)
   for (const [key, value] of Object.entries(errors)) {
     if (!value) {
       message.status = false
