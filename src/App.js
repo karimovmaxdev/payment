@@ -93,7 +93,7 @@ function App() {
         }
 
         if (item === 'dateError') {
-          setErrorDate({error: true, helper: 'Введите корректное значение'})
+          setErrorDate({error: true, helper: 'Не верно указан месяц или год'})
         }
 
         if (item === 'cvvError') {
