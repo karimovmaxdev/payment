@@ -1,24 +1,8 @@
 import { TextField, Box, Button } from "@mui/material";
 import { useState } from "react";
 
-function formValidate(obj) {
-  const message = { status: true }
-  const errors = {
-    cardNumberError: obj.cardNumber.length === 16,
-    dateError: obj.date.length === 7,
-    cvvError: obj.cvv.length === 3,
-    amountError: obj.amount > 0
-  }
-  
-  for (const [key, value] of Object.entries(errors)) {
-    if (!value) {
-      message.status = false
-      message[key] = 'error'
-    }
-  }
-
-  return message
-}
+import { postData } from "./serverAPI";
+import {  formValidate  } from "./validate"
 
 function App() {
   const [cardNumber, setCardNumber] = useState('')
@@ -80,10 +64,12 @@ function App() {
         if (isNaN(native)) return
         setAmount(value)
         break
+      
+      default: break
     }
   }
 
-  function formSubmit() {
+  async function formSubmit() {
     setErrorNumber({ error: false, helper: '' })
     setErrorDate({ error: false, helper: '' })
     setErrorCvv({ error: false, helper: '' })
@@ -91,7 +77,7 @@ function App() {
     
     const submitObject = {
       cardNumber,
-      date,
+      expDate: date,
       cvv,
       amount
     }
@@ -102,7 +88,7 @@ function App() {
       const errorsKeys = Object.keys(message)
       errorsKeys.forEach(item => {
         if (item === 'cardNumberError') {
-          setErrorNumber({ error: true, helper: 'Введите корректное значение' })
+          setErrorNumber({ error: true, helper: 'Введите 16 символов' })
         }
 
         if (item === 'dateError') {
@@ -110,7 +96,7 @@ function App() {
         }
 
         if (item === 'cvvError') {
-          setErrorCvv({error: true, helper: 'Введите корректное значение'})
+          setErrorCvv({error: true, helper: 'Введите 3 символа'})
         }
 
         if (item === 'amountError') {
@@ -121,7 +107,8 @@ function App() {
     }
 
     // делаем запрос на бэк
-    // zapros
+    const data = await postData(submitObject)
+    console.log(data)
 
     // чистим форму
     setCardNumber('')
