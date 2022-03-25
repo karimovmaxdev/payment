@@ -2,7 +2,8 @@ import { TextField, Box, Button } from "@mui/material";
 import { useState } from "react";
 
 import { postData } from "./serverAPI";
-import {  formValidate  } from "./validate"
+import { validate } from "./validate"
+
 
 function App() {
   const [cardNumber, setCardNumber] = useState('')
@@ -13,7 +14,11 @@ function App() {
   const [errorNumber, setErrorNumber] = useState({error: false, helper: ''})
   const [errorDate, setErrorDate] = useState({error: false, helper: ''})
   const [errorCvv, setErrorCvv] = useState({error: false, helper: ''})
-  const [errorAmount, setErrorAmount] = useState({error: false, helper: ''})
+  const [errorAmount, setErrorAmount] = useState({ error: false, helper: '' })
+  
+  const haveErrors = !errorNumber.error && !errorDate.error && !errorCvv.error && !errorAmount.error
+  const haveInputs = cardNumber.length > 0 && date.length > 0 && cvv.length > 0 && amount.length > 0
+  const showButton = haveErrors && haveInputs
 
 
   function fieldChange(e) {
@@ -21,25 +26,41 @@ function App() {
     const value = e.target.value
     const native = e.nativeEvent.data
  
-    if (native === ' ') {
+    if (native === ' ' || isNaN(native)) {
       return
     }
 
     switch (name) {
       // card number
       case 'card':
-        if (isNaN(native)) return
-        setCardNumber(value)
-        break
+        const isValidCardNumber = validate.cardNumber(value)
+
+        if (isValidCardNumber) {
+          setCardNumber(value)
+          setErrorNumber({error: false, helper: ''})
+          break
+        }
+        else {
+          setCardNumber(value)
+          setErrorNumber({ error: true, helper: 'Введите 16 символов' })
+          break
+        }
       
       // card date
       case 'date':
-        if (native === null) {
-          setDate('')
-          return
+        const isValidDate = validate.expDate(value)
+        if (isValidDate) {
+          setErrorDate({error: false, helper: ''})
+        }
+        else {
+          setErrorDate({error: true, helper: 'Не верно указан месяц или год'})
         }
 
-        if (isNaN(native)) return
+        if (native === null) {
+          setDate('')
+          setErrorDate({error: false, helper: ''})
+          return
+        }
 
         if (date.length === 6) {
           setDate(prev => `${prev+native}`)
@@ -55,15 +76,31 @@ function App() {
       
       // card CVV
       case 'cvv':
-        if (isNaN(native)) return
-        setCvv(value)
-        break
+        const isValidCvv = validate.cvv(value)
+        if (isValidCvv) {
+          setCvv(value)
+          setErrorCvv({error: false, helper: ''})
+          break
+        }
+        else {
+          setCvv(value)
+          setErrorCvv({ error: true, helper: 'Введите 3 символа' })
+          break
+        }
       
       // amount
       case 'amount':
-        if (isNaN(native)) return
-        setAmount(value)
-        break
+        const isValidAmount = validate.amount(value)
+        if (isValidAmount) {
+          setAmount(value)
+          setErrorAmount({error: false, helper: ''})
+          break
+        }
+        else {
+          setAmount(value)
+          setErrorAmount({ error: true, helper: 'Введите корректное значение' })
+          break
+        }
       
       default:
         break
@@ -83,30 +120,6 @@ function App() {
       amount
     }
 
-    const message = formValidate(submitObject)
-    // показываем ошибки, если валидация не прошла
-    if (!message.status) {
-      const errorsKeys = Object.keys(message)
-      errorsKeys.forEach(item => {
-        if (item === 'cardNumberError') {
-          setErrorNumber({ error: true, helper: 'Введите 16 символов' })
-        }
-
-        if (item === 'dateError') {
-          setErrorDate({error: true, helper: 'Не верно указан месяц или год'})
-        }
-
-        if (item === 'cvvError') {
-          setErrorCvv({error: true, helper: 'Введите 3 символа'})
-        }
-
-        if (item === 'amountError') {
-          setErrorAmount({error: true, helper: 'Введите корректное значение'})
-        }
-      })
-      return
-    }
-
     // делаем запрос на бэк
     const data = await postData(submitObject)
     console.log(data)
@@ -119,7 +132,6 @@ function App() {
 
   }
 
-  const buttonDisable = cardNumber && date && cvv && amount
   return (
     <Box
       component="form"
@@ -184,7 +196,7 @@ function App() {
       <Button
         variant='contained'
         onClick={formSubmit}
-        disabled={!buttonDisable}
+        disabled={!showButton}
       >
         Оплатить
       </Button>
