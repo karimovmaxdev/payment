@@ -90,14 +90,16 @@ function App() {
       
       // amount
       case 'amount':
-        const isValidAmount = validate.amount(value)
+        const amount = value.match(/[1-9][0-9]*$/) || []
+        const isValidAmount = validate.amount(amount[0] || value)
+        
         if (isValidAmount) {
-          setAmount(value)
+          setAmount(amount[0] || value)
           setErrorAmount({error: false, helper: ''})
           break
         }
         else {
-          setAmount(value)
+          setAmount(amount[0] || value)
           setErrorAmount({ error: true, helper: 'Введите корректное значение' })
           break
         }
