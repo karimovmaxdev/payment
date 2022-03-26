@@ -110,28 +110,33 @@ function App() {
   }
 
   async function formSubmit() {
-    setErrorNumber({ error: false, helper: '' })
-    setErrorDate({ error: false, helper: '' })
-    setErrorCvv({ error: false, helper: '' })
-    setErrorAmount({ error: false, helper: '' })
-    
-    const submitObject = {
-      cardNumber,
-      expDate: date,
-      cvv,
-      amount
+    try {
+      setErrorNumber({ error: false, helper: '' })
+      setErrorDate({ error: false, helper: '' })
+      setErrorCvv({ error: false, helper: '' })
+      setErrorAmount({ error: false, helper: '' })
+      
+      const submitObject = {
+        cardNumber,
+        expDate: date,
+        cvv,
+        amount
+      }
+        
+      // делаем запрос на бэк
+      const data = await postData(submitObject)
+      console.log(data)
+
+      // чистим форму
+      setCardNumber('')
+      setDate('')
+      setCvv('')
+      setAmount('')
+      
     }
-
-    // делаем запрос на бэк
-    const data = await postData(submitObject)
-    console.log(data)
-
-    // чистим форму
-    setCardNumber('')
-    setDate('')
-    setCvv('')
-    setAmount('')
-
+    catch (error) {
+      console.log(error)
+    }
   }
 
   return (
